@@ -1,9 +1,6 @@
 // client/src/main.js
 import { Game } from './core/Game.js';
-import { AuthManager } from './ui/AuthManager.js';
-import { NetworkManager } from './network/NetworkManager.js';
 
-// Global game instance
 let game = null;
 
 async function init() {
@@ -25,12 +22,25 @@ async function init() {
     setProgress(60, 'Preparing world...');
     await new Promise(r => setTimeout(r, 100));
 
+    setProgress(80, 'Connecting systems...');
+    await new Promise(r => setTimeout(r, 50)); // let browser paint the 80% bar
+
     // Create game instance
     game = new Game();
-    window.__game = game; // Debug access
+    window.__game = game;
 
-    setProgress(80, 'Connecting systems...');
-    await game.init();
+    // Run heavy WebGL init inside setTimeout so the browser
+    // can paint the loading screen first before blocking
+    await new Promise((resolve, reject) => {
+      setTimeout(async () => {
+        try {
+          await game.init();
+          resolve();
+        } catch(e) {
+          reject(e);
+        }
+      }, 50);
+    });
 
     setProgress(100, 'Ready!');
     await new Promise(r => setTimeout(r, 300));
@@ -56,5 +66,4 @@ async function init() {
   }
 }
 
-// Start
 init();
