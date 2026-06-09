@@ -10,6 +10,9 @@
   <title>Project Dropzone</title>
   <link rel="icon" type="image/png" href="/icon.png" />
   <link rel="stylesheet" href="/src/styles/main.css" />
+  <!-- Debug console for mobile -->
+  <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+  <script>eruda.init();</script>
 </head>
 <body>
   <div id="app">
@@ -219,21 +222,16 @@
 
       <!-- Mobile controls -->
       <div id="mobile-controls" class="mobile-controls">
-        <!-- Left joystick zone -->
         <div id="left-joystick-zone" class="joystick-zone left-zone">
           <div id="left-joystick-base" class="joystick-base">
             <div id="left-joystick-knob" class="joystick-knob"></div>
           </div>
         </div>
-
-        <!-- Right joystick zone (camera) -->
         <div id="right-joystick-zone" class="joystick-zone right-zone">
           <div id="right-joystick-base" class="joystick-base hidden">
             <div id="right-joystick-knob" class="joystick-knob"></div>
           </div>
         </div>
-
-        <!-- Action buttons -->
         <div class="action-buttons">
           <button class="action-btn btn-fire" id="btn-fire">🔴</button>
           <button class="action-btn btn-aim" id="btn-aim">🎯</button>
@@ -243,8 +241,6 @@
           <button class="action-btn btn-inventory" id="btn-inventory">🎒</button>
           <button class="action-btn btn-map" id="btn-map">🗺</button>
         </div>
-
-        <!-- Weapon switcher -->
         <div class="weapon-switcher" id="weapon-switcher">
           <div class="ws-slot" data-slot="0" id="ws-slot-0"></div>
           <div class="ws-slot" data-slot="1" id="ws-slot-1"></div>
