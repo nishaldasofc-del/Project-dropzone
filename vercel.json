@@ -1,5 +1,5 @@
 {
   "installCommand": "npm install --workspaces --include-workspace-root",
-  "buildCommand": "npm run build --workspace=client",
+  "buildCommand": "cd client && npm run build",
   "outputDirectory": "client/dist"
 }
