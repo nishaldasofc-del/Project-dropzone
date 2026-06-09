@@ -17,13 +17,34 @@ import { MatchManager } from './game/MatchManager.js';
 const app = express();
 const httpServer = createServer(app);
 
+// Dynamic CORS configuration function
+const corsOptions = {
+  origin: function (origin, callback) {
+    // 1. Allow requests with no origin (like mobile apps, postman, curl, or internal server-to-server calls)
+    if (!origin) return callback(null, true);
+
+    const configuredOrigin = process.env.CORS_ORIGIN;
+
+    // 2. Allow if it matches the configured environment variable,
+    //    or any Vercel domain, or local development ports
+    if (
+      (configuredOrigin && origin === configuredOrigin) ||
+      origin.endsWith('.vercel.app') ||
+      origin.startsWith('http://localhost:') ||
+      origin.startsWith('http://127.0.0.1:')
+    ) {
+      return callback(null, true);
+    }
+
+    return callback(new Error('Blocked by CORS policy'));
+  },
+  credentials: true,
+};
+
 // Security middleware
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(compression());
-app.use(cors({
-  origin: process.env.CORS_ORIGIN || '*',
-  credentials: true,
-}));
+app.use(cors(corsOptions)); // Apply dynamic CORS options here
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
@@ -39,7 +60,7 @@ app.use('/api/', limiter);
 // Socket.IO setup
 const io = new SocketServer(httpServer, {
   cors: {
-    origin: process.env.CORS_ORIGIN || '*',
+    origin: corsOptions.origin, // Use the same dynamic origin function
     methods: ['GET', 'POST'],
     credentials: true,
   },
