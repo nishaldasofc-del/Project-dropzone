@@ -5,74 +5,53 @@ export class Renderer {
   constructor(canvas) {
     this.canvas = canvas;
 
-    // Detect device capability
     const pixelRatio = Math.min(window.devicePixelRatio, 2);
     const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
-    this.quality = isMobile ? (pixelRatio > 1.5 ? 'medium' : 'low') : 'high';
+    this.quality = isMobile ? 'low' : 'high'; // force low on ALL mobile
 
-    // Renderer
     this.renderer = new THREE.WebGLRenderer({
       canvas,
-      antialias: this.quality === 'high',
-      powerPreference: 'high-performance',
+      antialias: false,           // OFF — big perf win on mobile
+      powerPreference: isMobile ? 'low-power' : 'high-performance',
       alpha: false,
       stencil: false,
       depth: true,
     });
 
-    this.renderer.setPixelRatio(pixelRatio);
-    this.renderer.shadowMap.enabled = this.quality !== 'low';
-    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.0;
+    this.renderer.setPixelRatio(isMobile ? 1 : pixelRatio); // no retina on mobile
+    this.renderer.shadowMap.enabled = false;                 // shadows OFF always
+    this.renderer.toneMapping = THREE.NoToneMapping;         // skip tone mapping
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
 
     // Scene
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(0x87ceeb);
-    this.scene.fog = new THREE.FogExp2(0x87ceeb, 0.0008);
+    this.scene.fog = isMobile ? null : new THREE.FogExp2(0x87ceeb, 0.0008); // no fog on mobile
 
     // Camera
     this.camera = new THREE.PerspectiveCamera(
       75,
       window.innerWidth / window.innerHeight,
       0.1,
-      2000
+      isMobile ? 1000 : 2000  // shorter draw distance on mobile
     );
     this.camera.position.set(0, 5, 10);
 
-    // Lighting
     this.setupLighting();
-
     this.resize();
   }
 
   setupLighting() {
-    // Ambient
-    const ambient = new THREE.AmbientLight(0xffffff, 0.4);
+    const ambient = new THREE.AmbientLight(0xffffff, 0.6); // brighter ambient, no need for sun shadows
     this.scene.add(ambient);
 
-    // Sun
-    const sun = new THREE.DirectionalLight(0xfff5e0, 1.2);
+    const sun = new THREE.DirectionalLight(0xfff5e0, 1.0);
     sun.position.set(300, 600, 200);
-    sun.castShadow = this.quality !== 'low';
-
-    if (sun.castShadow) {
-      sun.shadow.mapSize.width = this.quality === 'high' ? 2048 : 1024;
-      sun.shadow.mapSize.height = this.quality === 'high' ? 2048 : 1024;
-      sun.shadow.camera.near = 0.5;
-      sun.shadow.camera.far = 2000;
-      sun.shadow.camera.left = -500;
-      sun.shadow.camera.right = 500;
-      sun.shadow.camera.top = 500;
-      sun.shadow.camera.bottom = -500;
-      sun.shadow.bias = -0.0005;
-    }
+    sun.castShadow = false; // always off
     this.scene.add(sun);
     this.sun = sun;
 
-    // Hemisphere (sky/ground)
-    const hemi = new THREE.HemisphereLight(0x87ceeb, 0x4a7c2f, 0.5);
+    const hemi = new THREE.HemisphereLight(0x87ceeb, 0x4a7c2f, 0.4);
     this.scene.add(hemi);
   }
 
