@@ -1,5 +1,5 @@
 // client/src/ui/AuthManager.js
-const API_BASE = '/api/auth';
+const API_BASE = `${import.meta.env.VITE_SERVER_URL || ''}/api/auth`;
 
 export class AuthManager {
   constructor(game) {
