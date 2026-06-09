@@ -24,7 +24,7 @@ export class NetworkManager {
       this.socket.disconnect();
     }
 
-    const serverUrl = window.location.origin;
+    const serverUrl = import.meta.env.VITE_SERVER_URL || window.location.origin;
 
     this.socket = io(serverUrl, {
       auth: { token },
