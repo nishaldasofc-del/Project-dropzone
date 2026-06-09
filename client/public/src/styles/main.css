@@ -630,3 +630,8 @@ html, body {
   75% { opacity: 1; transform: translate(-50%, 0); }
   100% { opacity: 0; transform: translate(-50%, -10px); }
 }
+/* Explicitly allow typing on all inputs and forms on mobile */
+input, textarea, select {
+  -webkit-user-select: text !important;
+  user-select: text !important;
+}
