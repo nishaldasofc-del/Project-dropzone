@@ -1,0 +1,9 @@
+{
+  "name": "@dropzone/shared",
+  "version": "1.0.0",
+  "description": "Shared constants, types, and utilities for Project Dropzone",
+  "main": "src/index.js",
+  "scripts": {
+    "build": "echo 'Shared package ready'"
+  }
+}

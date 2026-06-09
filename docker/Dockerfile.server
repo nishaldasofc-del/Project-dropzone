@@ -1,0 +1,25 @@
+FROM node:20-alpine AS base
+WORKDIR /app
+RUN apk add --no-cache curl
+
+# Install dependencies
+COPY package.json ./
+COPY shared/package.json ./shared/
+COPY server/package.json ./server/
+RUN npm install --workspaces --include-workspace-root
+
+# Copy source
+COPY shared/ ./shared/
+COPY server/ ./server/
+
+# Create logs directory
+RUN mkdir -p /app/server/logs
+
+# Non-root user
+RUN addgroup -g 1001 -S nodejs && adduser -S dropzone -u 1001
+USER dropzone
+
+EXPOSE 3000
+
+WORKDIR /app/server
+CMD ["node", "src/index.js"]

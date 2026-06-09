@@ -1,0 +1,24 @@
+{
+  "name": "project-dropzone",
+  "version": "1.0.0",
+  "description": "Mobile-first multiplayer 3D battle royale game",
+  "private": true,
+  "workspaces": [
+    "client",
+    "server",
+    "shared"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:server": "npm run dev --workspace=server",
+    "dev:client": "npm run dev --workspace=client",
+    "build": "npm run build --workspace=shared && npm run build --workspace=client && npm run build --workspace=server",
+    "start": "npm run start --workspace=server",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#0a0e1a" />
+  <title>Project Dropzone</title>
+  <link rel="icon" type="image/png" href="/icon.png" />
+  <link rel="stylesheet" href="/src/styles/main.css" />
+</head>
+<body>
+  <div id="app">
+    <!-- Loading screen -->
+    <div id="loading-screen">
+      <div class="loading-logo">
+        <span class="logo-drop">DROP</span><span class="logo-zone">ZONE</span>
+      </div>
+      <div class="loading-bar-wrap">
+        <div class="loading-bar" id="loading-bar"></div>
+      </div>
+      <div class="loading-text" id="loading-text">Initializing...</div>
+    </div>
+
+    <!-- Auth screen -->
+    <div id="auth-screen" class="screen hidden">
+      <div class="auth-bg"></div>
+      <div class="auth-container">
+        <div class="auth-logo">
+          <span class="logo-drop">DROP</span><span class="logo-zone">ZONE</span>
+        </div>
+        <div class="auth-tabs">
+          <button class="auth-tab active" data-tab="login">LOGIN</button>
+          <button class="auth-tab" data-tab="register">REGISTER</button>
+        </div>
+        <div id="login-form" class="auth-form">
+          <input type="text" id="login-username" placeholder="Username or Email" autocomplete="username" />
+          <input type="password" id="login-password" placeholder="Password" autocomplete="current-password" />
+          <button id="login-btn" class="btn-primary">ENTER THE ZONE</button>
+          <div class="auth-error" id="login-error"></div>
+        </div>
+        <div id="register-form" class="auth-form hidden">
+          <input type="text" id="reg-username" placeholder="Username" maxlength="20" autocomplete="username" />
+          <input type="email" id="reg-email" placeholder="Email" autocomplete="email" />
+          <input type="password" id="reg-password" placeholder="Password (min 6 chars)" autocomplete="new-password" />
+          <button id="register-btn" class="btn-primary">CREATE ACCOUNT</button>
+          <div class="auth-error" id="register-error"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main menu -->
+    <div id="main-menu" class="screen hidden">
+      <div class="menu-bg"></div>
+      <div class="menu-container">
+        <div class="menu-logo">
+          <span class="logo-drop">DROP</span><span class="logo-zone">ZONE</span>
+        </div>
+        <div class="player-info">
+          <div class="player-avatar" id="menu-avatar"></div>
+          <div class="player-details">
+            <div class="player-name" id="menu-username">Player</div>
+            <div class="player-level">LVL <span id="menu-level">1</span></div>
+            <div class="xp-bar-wrap">
+              <div class="xp-bar" id="menu-xp-bar"></div>
+            </div>
+          </div>
+        </div>
+        <div class="menu-stats" id="menu-stats">
+          <div class="stat-box"><div class="stat-val" id="stat-wins">0</div><div class="stat-lbl">WINS</div></div>
+          <div class="stat-box"><div class="stat-val" id="stat-kills">0</div><div class="stat-lbl">KILLS</div></div>
+          <div class="stat-box"><div class="stat-val" id="stat-kd">0.00</div><div class="stat-lbl">K/D</div></div>
+          <div class="stat-box"><div class="stat-val" id="stat-matches">0</div><div class="stat-lbl">MATCHES</div></div>
+        </div>
+        <div class="menu-buttons">
+          <button id="play-btn" class="btn-primary btn-play">PLAY NOW</button>
+          <button id="profile-btn" class="btn-secondary">PROFILE</button>
+          <button id="leaderboard-btn" class="btn-secondary">LEADERBOARD</button>
+          <button id="logout-btn" class="btn-ghost">LOGOUT</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lobby screen -->
+    <div id="lobby-screen" class="screen hidden">
+      <div class="lobby-container">
+        <div class="lobby-header">
+          <div class="lobby-title">WAITING FOR PLAYERS</div>
+          <div class="lobby-count"><span id="lobby-player-count">0</span> / 64</div>
+        </div>
+        <div class="lobby-countdown" id="lobby-countdown"></div>
+        <div class="lobby-players" id="lobby-players"></div>
+        <button id="leave-lobby-btn" class="btn-ghost">LEAVE</button>
+      </div>
+    </div>
+
+    <!-- Game canvas -->
+    <canvas id="game-canvas"></canvas>
+
+    <!-- HUD -->
+    <div id="hud" class="hidden">
+      <!-- Top bar -->
+      <div class="hud-top">
+        <div class="hud-players-remaining">
+          <span class="icon-players">👥</span>
+          <span id="hud-players-count">64</span>
+        </div>
+        <div class="hud-zone-timer" id="hud-zone-timer"></div>
+        <div class="hud-minimap" id="hud-minimap">
+          <canvas id="minimap-canvas" width="180" height="180"></canvas>
+        </div>
+      </div>
+
+      <!-- Health / Armor bars -->
+      <div class="hud-bottom-left">
+        <div class="hud-health-section">
+          <div class="hud-armor-bar-wrap">
+            <div class="hud-armor-bar" id="hud-armor-bar"></div>
+          </div>
+          <div class="hud-health-bar-wrap">
+            <div class="hud-health-bar" id="hud-health-bar"></div>
+          </div>
+          <div class="hud-health-text"><span id="hud-health">100</span> HP</div>
+        </div>
+        <div class="hud-boost-bar-wrap" id="hud-boost-wrap">
+          <div class="hud-boost-bar" id="hud-boost-bar"></div>
+        </div>
+      </div>
+
+      <!-- Weapon info -->
+      <div class="hud-bottom-right">
+        <div class="hud-weapon-info">
+          <div class="hud-weapon-name" id="hud-weapon-name">—</div>
+          <div class="hud-ammo">
+            <span class="hud-ammo-mag" id="hud-ammo-mag">—</span>
+            <span class="hud-ammo-sep">/</span>
+            <span class="hud-ammo-reserve" id="hud-ammo-reserve">—</span>
+          </div>
+        </div>
+        <div class="hud-weapon-slots" id="hud-weapon-slots"></div>
+      </div>
+
+      <!-- Kill feed -->
+      <div class="hud-killfeed" id="hud-killfeed"></div>
+
+      <!-- Zone warning -->
+      <div class="hud-zone-warning hidden" id="hud-zone-warning">
+        ⚠️ MOVE TO SAFE ZONE
+      </div>
+
+      <!-- Crosshair -->
+      <div class="crosshair" id="crosshair">
+        <div class="ch-top"></div>
+        <div class="ch-bottom"></div>
+        <div class="ch-left"></div>
+        <div class="ch-right"></div>
+      </div>
+
+      <!-- Hit indicator -->
+      <div class="hit-indicator hidden" id="hit-indicator"></div>
+
+      <!-- Damage flash -->
+      <div class="damage-flash hidden" id="damage-flash"></div>
+
+      <!-- Parachute indicator -->
+      <div class="parachute-hud hidden" id="parachute-hud">
+        <div class="para-icon">🪂</div>
+        <div class="para-text" id="para-text">FREEFALL</div>
+        <div class="para-altitude" id="para-altitude"></div>
+        <div class="para-hint">TAP TO DEPLOY</div>
+      </div>
+
+      <!-- Loot prompt -->
+      <div class="loot-prompt hidden" id="loot-prompt">
+        <div class="loot-items" id="loot-items-list"></div>
+      </div>
+
+      <!-- Inventory panel -->
+      <div class="inventory-panel hidden" id="inventory-panel">
+        <div class="inv-header">INVENTORY</div>
+        <div class="inv-equipment" id="inv-equipment"></div>
+        <div class="inv-items" id="inv-items"></div>
+        <div class="inv-ammo" id="inv-ammo"></div>
+      </div>
+
+      <!-- Spectator overlay -->
+      <div class="spectator-overlay hidden" id="spectator-overlay">
+        <div class="spec-text">SPECTATING</div>
+        <div class="spec-name" id="spec-name"></div>
+        <div class="spec-kills" id="spec-kills"></div>
+      </div>
+
+      <!-- Death screen -->
+      <div class="death-screen hidden" id="death-screen">
+        <div class="death-title">ELIMINATED</div>
+        <div class="death-killer">by <span id="death-killer-name">—</span></div>
+        <div class="death-stats">
+          <div class="ds-item">Survived <span id="death-survived">0:00</span></div>
+          <div class="ds-item">Kills <span id="death-kills">0</span></div>
+          <div class="ds-item">Damage <span id="death-damage">0</span></div>
+        </div>
+        <button id="spectate-btn" class="btn-secondary">SPECTATE</button>
+        <button id="back-to-menu-btn" class="btn-ghost">MAIN MENU</button>
+      </div>
+
+      <!-- Win screen -->
+      <div class="win-screen hidden" id="win-screen">
+        <div class="win-title">VICTORY ROYALE</div>
+        <div class="win-chicken">🏆</div>
+        <div class="win-stats">
+          <div class="ws-item">KILLS <span id="win-kills">0</span></div>
+          <div class="ws-item">DAMAGE <span id="win-damage">0</span></div>
+          <div class="ws-item">SURVIVED <span id="win-time">0:00</span></div>
+        </div>
+        <button id="win-menu-btn" class="btn-primary">MAIN MENU</button>
+      </div>
+
+      <!-- Mobile controls -->
+      <div id="mobile-controls" class="mobile-controls">
+        <!-- Left joystick zone -->
+        <div id="left-joystick-zone" class="joystick-zone left-zone">
+          <div id="left-joystick-base" class="joystick-base">
+            <div id="left-joystick-knob" class="joystick-knob"></div>
+          </div>
+        </div>
+
+        <!-- Right joystick zone (camera) -->
+        <div id="right-joystick-zone" class="joystick-zone right-zone">
+          <div id="right-joystick-base" class="joystick-base hidden">
+            <div id="right-joystick-knob" class="joystick-knob"></div>
+          </div>
+        </div>
+
+        <!-- Action buttons -->
+        <div class="action-buttons">
+          <button class="action-btn btn-fire" id="btn-fire">🔴</button>
+          <button class="action-btn btn-aim" id="btn-aim">🎯</button>
+          <button class="action-btn btn-jump" id="btn-jump">↑</button>
+          <button class="action-btn btn-crouch" id="btn-crouch">↓</button>
+          <button class="action-btn btn-reload" id="btn-reload">R</button>
+          <button class="action-btn btn-inventory" id="btn-inventory">🎒</button>
+          <button class="action-btn btn-map" id="btn-map">🗺</button>
+        </div>
+
+        <!-- Weapon switcher -->
+        <div class="weapon-switcher" id="weapon-switcher">
+          <div class="ws-slot" data-slot="0" id="ws-slot-0"></div>
+          <div class="ws-slot" data-slot="1" id="ws-slot-1"></div>
+          <div class="ws-slot" data-slot="2" id="ws-slot-2"></div>
+        </div>
+      </div>
+
+      <!-- Map overlay -->
+      <div class="map-overlay hidden" id="map-overlay">
+        <canvas id="map-canvas" width="600" height="600"></canvas>
+        <button class="btn-ghost map-close" id="map-close-btn">✕</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

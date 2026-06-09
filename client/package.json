@@ -1,0 +1,19 @@
+{
+  "name": "@dropzone/client",
+  "version": "1.0.0",
+  "description": "Project Dropzone Game Client",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@dropzone/shared": "*",
+    "socket.io-client": "^4.6.1",
+    "three": "^0.160.0"
+  },
+  "devDependencies": {
+    "vite": "^5.0.8"
+  }
+}
