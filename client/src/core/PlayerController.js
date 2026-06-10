@@ -249,7 +249,12 @@ export class PlayerController {
     this.isGrounded = true;
     this.matchStartTime = Date.now();
 
+    // Explicitly hide parachute HUD — belt-and-suspenders guard against it
+    // staying visible if the HUD manager misses the state transition.
     this.game.hud.showParachuteHUD(false);
+    const paraHud = document.getElementById('parachute-hud');
+    if (paraHud) paraHud.classList.add('hidden');
+
     this.input.setGameMode(true);
 
     // On desktop, lock pointer
@@ -295,10 +300,17 @@ export class PlayerController {
 
   updateCameraRotation(dt) {
     if (this.input.isMobile) {
-      const joystick = this.input.getJoystickDelta();
-      if (this.input.rightJoystick.active) {
-        this.yaw -= joystick.right.x * TOUCH_SENSITIVITY;
-        this.pitch -= joystick.right.y * TOUCH_SENSITIVITY;
+      // Right joystick: use NORMALIZED position (-1..1) as a continuous turn rate.
+      // The raw pixel dx/dy from InputManager already represent displacement from
+      // the joystick centre, clamped to MAX_RADIUS — normalise here so rotation
+      // speed is frame-rate independent and doesn't accumulate.
+      const MAX_RADIUS = 55; // must match InputManager
+      const rj = this.input.rightJoystick;
+      if (rj.active) {
+        const nx = Math.max(-1, Math.min(1, rj.dx / MAX_RADIUS));
+        const ny = Math.max(-1, Math.min(1, rj.dy / MAX_RADIUS));
+        this.yaw   -= nx * TOUCH_SENSITIVITY * dt * 60;
+        this.pitch -= ny * TOUCH_SENSITIVITY * dt * 60;
       }
     } else {
       const mouse = this.input.getMouseDelta();
@@ -404,7 +416,7 @@ export class PlayerController {
       this.position.z,
     );
     this.camera.lookAt(lookAt);
-    // Prevent Z-axis roll accumulation (gimbal lock on mobile during freefall)
+    // Prevent Z-axis roll accumulation (gimbal lock during freefall on mobile)
     this.camera.rotation.z = 0;
   }
 
@@ -418,6 +430,7 @@ export class PlayerController {
       this.position.z + Math.sin(t) * orbitR,
     );
     this.camera.lookAt(this.position.x, this.position.y + 1, this.position.z);
+    this.camera.rotation.z = 0;
   }
 
   // ============================================================
