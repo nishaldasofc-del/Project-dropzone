@@ -415,7 +415,7 @@ html, body {
 
 /* Parachute HUD */
 .parachute-hud {
-  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  position: absolute; top: 25%; left: 50%; transform: translateX(-50%);
   text-align: center;
   background: var(--clr-panel);
   border: 1px solid var(--clr-border); border-radius: 8px;
@@ -634,4 +634,99 @@ html, body {
 input, textarea, select {
   -webkit-user-select: text !important;
   user-select: text !important;
+}
+
+/* ============================================================
+   LANDSCAPE MOBILE — scale down HUD to prevent overlap
+   Targets phones in landscape (short viewport, touch input)
+   ============================================================ */
+@media (pointer: coarse) and (orientation: landscape),
+       (max-height: 500px) and (pointer: coarse) {
+
+  /* --- Health / armor panel (bottom-left) --- */
+  .hud-bottom-left {
+    bottom: 6px;
+    left: 8px;
+    width: 150px;
+    gap: 3px;
+  }
+  .hud-health-text { font-size: 0.8rem; }
+  .hud-health-bar-wrap { height: 7px; }
+  .hud-armor-bar-wrap { height: 4px; }
+  .hud-boost-bar-wrap { height: 3px; }
+
+  /* --- Weapon info panel (bottom-right) --- */
+  .hud-bottom-right {
+    bottom: 6px;
+    right: 8px;
+    gap: 3px;
+  }
+  .hud-weapon-name { font-size: 0.7rem; }
+  .hud-ammo { font-size: 1rem; }
+  .hud-ammo-reserve { font-size: 0.75rem; }
+  .hud-slot { width: 28px; height: 28px; font-size: 0.5rem; }
+  .hud-weapon-slots { gap: 4px; }
+
+  /* --- Action buttons grid (bottom-right quadrant) ---
+       Cluster tightly so they don't bleed into joystick/health areas */
+  .action-buttons {
+    bottom: 52px;
+    right: 160px;           /* stay clear of right joystick */
+    gap: 5px;
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .action-btn {
+    width: 38px;
+    height: 38px;
+    font-size: 0.75rem;
+  }
+  .btn-fire {
+    width: 48px;
+    height: 48px;
+  }
+
+  /* --- Weapon switcher (bottom-center) --- */
+  .weapon-switcher {
+    bottom: calc(52px + var(--safe-bottom));
+    gap: 5px;
+  }
+  .ws-slot {
+    width: 40px;
+    height: 40px;
+    font-size: 0.5rem;
+  }
+
+  /* --- Joystick zones — move up slightly so they clear the weapon switcher --- */
+  .joystick-zone {
+    bottom: 52px;
+    width: 130px;
+    height: 130px;
+  }
+  .joystick-base {
+    width: 96px;
+    height: 96px;
+  }
+  .joystick-knob {
+    width: 40px;
+    height: 40px;
+  }
+
+  /* --- Parachute HUD — keep compact on small screens --- */
+  .parachute-hud {
+    padding: 10px 18px;
+  }
+  .para-icon { font-size: 1.6rem; margin-bottom: 4px; }
+  .para-text { font-size: 0.8rem; }
+  .para-altitude { font-size: 1rem; margin: 3px 0; }
+  .para-hint { font-size: 0.65rem; }
+
+  /* --- Kill feed — smaller on landscape --- */
+  .hud-killfeed {
+    top: max(50px, calc(44px + var(--safe-top)));
+    width: 170px;
+  }
+  .killfeed-entry { font-size: 0.62rem; padding: 3px 6px; }
+
+  /* --- Players remaining badge --- */
+  .hud-players-remaining { font-size: 0.75rem; }
 }
