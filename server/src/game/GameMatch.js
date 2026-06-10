@@ -736,10 +736,12 @@ export class GameMatch {
   // ============================================================
 
   checkWinCondition() {
-    // Don't evaluate win condition while players are still dropping in —
-    // a jump transitions them OUT of ALIVE briefly, which reads as 0 alive players.
+    // Never trigger end-of-match while players are still in the airplane or
+    // parachuting — the transition OUT of IN_AIRPLANE briefly leaves zero
+    // ALIVE players, which would fire endMatch() before anyone hits the ground.
     const anyStillDropping = [...this.players.values()].some(
-      p => p.state === PLAYER_STATES.IN_AIRPLANE || p.state === PLAYER_STATES.PARACHUTING
+      p => p.state === PLAYER_STATES.IN_AIRPLANE ||
+           p.state === PLAYER_STATES.PARACHUTING
     );
     if (anyStillDropping) return;
 
