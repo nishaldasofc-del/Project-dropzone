@@ -156,6 +156,7 @@ export class PlayerController {
     const targetPos = airplane.position.clone().add(new THREE.Vector3(5, -2, 10));
     this.camera.position.lerp(targetPos, dt * 3);
     this.camera.lookAt(airplane.position);
+    this.camera.rotation.z = 0;
 
     // Listen for jump input
     const input = this.input.getGameInput();
@@ -403,6 +404,8 @@ export class PlayerController {
       this.position.z,
     );
     this.camera.lookAt(lookAt);
+    // Prevent Z-axis roll accumulation (gimbal lock on mobile during freefall)
+    this.camera.rotation.z = 0;
   }
 
   updateDeadCamera(dt) {
